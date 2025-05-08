@@ -1,103 +1,257 @@
-import Image from "next/image";
+'use client';
+import Link from 'next/link';
+import Image from 'next/image';
+import { useState, useEffect } from 'react';
 
-export default function Home() {
+export default function HomePage() {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [activeFeature, setActiveFeature] = useState<number | null>(null);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    setIsLoaded(true);
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({
+        x: (e.clientX / window.innerWidth) * 30,
+        y: (e.clientY / window.innerHeight) * 30,
+      });
+    };
+    const handleScroll = () => {
+      const scrolled = window.scrollY;
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = (scrolled / maxScroll) * 100;
+      setScrollProgress(progress);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <main className="min-h-screen relative overflow-hidden bg-slate-50">
+      {/* Scroll Progress Bar */}
+      <div 
+        className="fixed top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 transform-gpu z-50"
+        style={{ transform: `scaleX(${scrollProgress / 100})`, transformOrigin: 'left' }}
+      />
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      {/* Dynamic Background */}
+      <div 
+        className="fixed inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(79,70,229,0.1),rgba(79,70,229,0))]"
+        style={{
+          transform: `translate(${mousePosition.x}px, ${mousePosition.y}px) scale(1.1)`,
+          transition: 'transform 0.2s ease-out',
+        }}
+      >
+        {/* Grid Pattern */}
+        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
+
+        {/* Animated Gradient Orbs */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-radial from-blue-400/20 to-transparent rounded-full mix-blend-multiply filter blur-3xl animate-float"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-radial from-purple-400/20 to-transparent rounded-full mix-blend-multiply filter blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-radial from-indigo-400/20 to-transparent rounded-full mix-blend-multiply filter blur-3xl animate-float" style={{ animationDelay: '1s' }}></div>
+      </div>
+
+      {/* Hero Section */}
+      <div className="relative">
+        <div className="container mx-auto px-4 pt-24 pb-16">
+          <div className="max-w-6xl mx-auto">
+            {/* Hero Content */}
+            <div className="flex flex-col lg:flex-row items-center gap-12">
+              {/* Text Content */}
+              <div 
+                className="flex-1 text-center lg:text-left"
+                style={{
+                  transform: isLoaded ? 'translateX(0)' : 'translateX(-2rem)',
+                  opacity: isLoaded ? 1 : 0,
+                  transition: 'all 1s ease-out',
+                }}
+              >
+                <h1 className="text-5xl sm:text-7xl font-bold text-gray-900 mb-8">
+                  <span className="inline-block transform hover:scale-105 transition-transform duration-300">
+                    <span className="relative text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:bg-gradient-to-l cursor-default">
+                      URCompetition
+                      <span className="absolute -inset-1 bg-gradient-to-r from-blue-600/20 via-indigo-600/20 to-purple-600/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    </span>
+                  </span>
+                </h1>
+                <p className="text-xl sm:text-2xl text-gray-600 mb-12 leading-relaxed">
+                  Experience the future of robotics competitions with real-time scoring, precision timing, and live rankings.
+                </p>
+                
+                {/* CTA Buttons */}
+                <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-6">
+                  <Link href="/register" className="group perspective">
+                    <button className="relative w-full sm:w-auto px-8 py-4 text-lg bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white rounded-xl transition-all duration-500 transform hover:scale-105 hover:shadow-[0_8px_30px_rgba(79,70,229,0.3)] overflow-hidden group-hover:animate-shine">
+                      <span className="relative z-10 flex items-center justify-center gap-2">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        Register a Team
+                      </span>
+                      <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-all duration-500 group-hover:rotate-180"/>
+                    </button>
+                  </Link>
+                  <Link href="/scoreboard" className="group perspective">
+                    <button className="relative w-full sm:w-auto px-8 py-4 text-lg bg-white text-indigo-600 border-2 border-indigo-600/20 rounded-xl transition-all duration-500 transform hover:scale-105 hover:shadow-[0_8px_30px_rgba(79,70,229,0.2)] hover:border-indigo-600">
+                      <span className="relative z-10 flex items-center justify-center gap-2">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        View Scoreboard
+                      </span>
+                    </button>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Hero Image */}
+              <div 
+                className="flex-1 relative"
+                style={{
+                  transform: isLoaded ? 'translateX(0)' : 'translateX(2rem)',
+                  opacity: isLoaded ? 1 : 0,
+                  transition: 'all 1s ease-out',
+                  transitionDelay: '300ms',
+                }}
+              >
+                <Image
+                  src="/robot.svg"
+                  alt="Robot illustration"
+                  width={600}
+                  height={600}
+                  className="w-full h-auto max-w-lg mx-auto animate-float"
+                  priority
+                />
+              </div>
+            </div>
+
+            {/* Feature Cards */}
+            <div 
+              className="mt-32 grid grid-cols-1 md:grid-cols-3 gap-8"
+              style={{
+                transform: isLoaded ? 'translateY(0)' : 'translateY(2rem)',
+                opacity: isLoaded ? 1 : 0,
+                transitionDelay: '600ms',
+              }}
+            >
+              {[
+                {
+                  title: 'Fair Scoring',
+                  description: 'Automated and transparent scoring system ensuring fairness across all challenges',
+                  icon: (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="blue" fill="none" />
+                  ),
+                  color: 'blue'
+                },
+                {
+                  title: 'Time Tracking',
+                  description: 'High-precision timing system accurate to the millisecond for all team performances',
+                  icon: (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" stroke="blue" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  ),
+                  color: 'blue'
+                },
+                {
+                  title: 'Live Rankings',
+                  description: 'Real-time leaderboard updates with instant scoring and rank calculations',
+                  icon: (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" stroke="blue" fill="none" />
+                  ),
+                  color: 'indigo'
+                }
+              ].map((feature, index) => (
+                <div
+                  key={feature.title}
+                  className="group relative p-8 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 overflow-hidden"
+                  onMouseEnter={() => setActiveFeature(index)}
+                  onMouseLeave={() => setActiveFeature(null)}
+                  style={{
+                    transformStyle: 'preserve-3d',
+                    transform: `perspective(1000px) rotateX(${mousePosition.y / 50}deg) rotateY(${mousePosition.x / 50}deg)`,
+                  }}
+                >
+                  {/* Feature Card Background Pattern */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-white opacity-50" />
+                  <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.02] group-hover:opacity-[0.04] transition-opacity duration-500" />
+                  
+                  <div className="relative">
+                    <div className={`w-16 h-16 mb-6 rounded-xl flex items-center justify-center transition-all duration-500 transform ${
+                      activeFeature === index ? 'scale-110 rotate-6' : ''
+                    } bg-gradient-to-br from-${feature.color}-50 to-${feature.color}-100/80 group-hover:shadow-lg`}>
+                      <svg className="w-8 h-8" style={{ color: `var(--tw-text-${feature.color}-600)` }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        {feature.icon}
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-3 transition-transform duration-300 group-hover:scale-105">
+                      {feature.title}
+                    </h3>
+                    <p className="text-gray-600 leading-relaxed transition-all duration-300 group-hover:text-gray-800">
+                      {feature.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+      </div>
+
+      {/* Statistics Section */}
+      <div 
+        className="relative py-24 bg-gradient-to-b from-transparent via-indigo-50/50 to-transparent"
+        style={{
+          transform: isLoaded ? 'translateY(0)' : 'translateY(2rem)',
+          opacity: isLoaded ? 1 : 0,
+          transition: 'all 1s ease-out',
+          transitionDelay: '900ms',
+        }}
+      >
+        <div className="container mx-auto px-4">
+          <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            {[
+              { value: '100+', label: 'Teams' },
+              { value: '50+', label: 'Challenges' },
+              { value: '1000+', label: 'Participants' },
+              { value: '24/7', label: 'Support' }
+            ].map((stat, index) => (
+              <div key={stat.label} className="group">
+                <div className="text-4xl font-bold text-indigo-600 mb-2 group-hover:scale-110 transition-transform duration-300">
+                  {stat.value}
+                </div>
+                <div className="text-gray-600">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer 
+        className="relative py-12 bg-gradient-to-t from-white/80 to-transparent"
+        style={{
+          transform: isLoaded ? 'translateY(0)' : 'translateY(2rem)',
+          opacity: isLoaded ? 1 : 0,
+          transition: 'all 1s ease-out',
+          transitionDelay: '1200ms',
+        }}
+      >
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-gray-600">
+            Créé par{' '}
+            <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-indigo-600 hover:to-blue-600 transition-all duration-300 cursor-default">
+              MOUHIB Otman
+            </span>
+            <span className="mx-2">•</span>
+            <span className="text-gray-500">{new Date().getFullYear()}</span>
+          </p>
+        </div>
       </footer>
-    </div>
+    </main>
   );
 }
