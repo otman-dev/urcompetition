@@ -1,29 +1,26 @@
 import { connectToDatabase } from '@/lib/db';
+import { CompetitionConfig } from '@/models/CompetitionConfig';
 import { Team } from '@/models/Team';
 import { NextResponse } from 'next/server';
+import { requireAuth } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 export const preferredRegion = 'auto';
-
-const CHALLENGE_POINTS = {
-  defi1: 20,
-  defi2: 20,
-  defi3: 20,
-  defi4: 20,
-  defi5: 20,
-  defi6: 20,
-};
 
 export async function POST(
   request: Request,
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await context.params;
+    const auth = await requireAuth(request);
+    if (!auth) {
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    }
 
+    const { id } = await context.params;
     const { challengeId, success } = await request.json();
-    
+
     if (!challengeId || typeof success !== 'boolean') {
       return NextResponse.json(
         { message: 'Invalid challenge data' },
@@ -31,16 +28,19 @@ export async function POST(
       );
     }
 
-    if (!(challengeId in CHALLENGE_POINTS)) {
+    await connectToDatabase();
+    const config = await CompetitionConfig.findOne();
+    const activeChallengeIds = config?.challenges.map((item: { id: string }) => item.id) ?? [];
+    const challenge = config?.challenges.find((item: { id: string }) => item.id === challengeId);
+
+    if (!challenge) {
       return NextResponse.json(
         { message: 'Invalid challenge ID' },
         { status: 400 }
       );
     }
 
-    await connectToDatabase();
     const team = await Team.findById(id);
-    
     if (!team) {
       return NextResponse.json(
         { message: 'Team not found' },
@@ -48,20 +48,15 @@ export async function POST(
       );
     }
 
-    // Update challenge score
-    team.detailedScores[challengeId as keyof typeof CHALLENGE_POINTS] = success
-      ? CHALLENGE_POINTS[challengeId as keyof typeof CHALLENGE_POINTS]
+    team.detailedScores[challengeId as keyof typeof team.detailedScores] = success
+      ? challenge.points
       : 0;
 
-    // Calculate total score excluding timer
     const challengeScores = Object.entries(team.detailedScores)
-      .filter(([key]) => key !== 'timer')
+      .filter(([key]) => activeChallengeIds.includes(key))
       .reduce((sum, [_, value]) => sum + (typeof value === 'number' ? value : 0), 0);
 
-    // Calculate intervention penalty
-    const interventionPenalty = (team.interventions || 0) * -3;
-
-    // Update global score
+    const interventionPenalty = (team.interventions || 0) * (config?.interventionPenalty ?? -3);
     team.globalScore = challengeScores + interventionPenalty;
 
     await team.save();

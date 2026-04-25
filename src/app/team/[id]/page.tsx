@@ -21,15 +21,12 @@ interface Team {
   timerScore: number;
 }
 
-const CHALLENGES = [
-  { id: 'defi1', name: 'Défi 1 : Le robot évite les zones vides', points: 20 },
-  { id: 'defi2', name: 'Défi 2 : Réagit correctement au feu', points: 20 },
-  { id: 'defi3', name: 'Défi 3 : Suit la ligne sans sortir', points: 20 },
-  { id: 'defi4', name: 'Défi 4 : Récupère l\'objet vert et le dépose dans sa poubelle', points: 20 },
-  { id: 'defi5', name: 'Défi 5 : Récupère l\'objet rouge et le dépose dans sa poubelle', points: 20 },
-  { id: 'defi6', name: 'Défi 6 : Récupère l\'objet jaune et le dépose dans sa poubelle', points: 20 },
-  { id: 'timer', name: 'Temps de parcours', points: 0 }, // Timer challenge
-];
+interface ChallengeConfigItem {
+  id: string;
+  name: string;
+  points: number;
+}
+
 
 export default function TeamPage() {
   const params = useParams();
@@ -37,6 +34,8 @@ export default function TeamPage() {
   const [time, setTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
+  const [challenges, setChallenges] = useState<ChallengeConfigItem[]>([]);
+  const [interventionPenalty, setInterventionPenalty] = useState(-3);
 
   useEffect(() => {
     fetchTeam();
@@ -47,6 +46,27 @@ export default function TeamPage() {
       }
     };
   }, [params.id]);
+
+  useEffect(() => {
+    const loadConfig = async () => {
+      try {
+        const response = await fetch('/api/config');
+        const data = await response.json();
+        if (response.ok) {
+          if (Array.isArray(data.challenges) && data.challenges.length > 0) {
+            setChallenges(data.challenges);
+          }
+          if (typeof data.interventionPenalty === 'number') {
+            setInterventionPenalty(data.interventionPenalty);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading competition config:', error);
+      }
+    };
+
+    loadConfig();
+  }, []);
 
   // Save timer state to localStorage
   useEffect(() => {
@@ -72,7 +92,7 @@ export default function TeamPage() {
     try {
       const response = await fetch(`/api/team/${params.id}`);
       const data = await response.json();
-      setTeam(data);
+      setTeam({ ...data, globalScore: data.globalScore ?? 0 });
       // Only set the timer if it hasn't been started yet
       if (!isRunning && time === 0 && data.detailedScores.timer > 0) {
         setTime(data.detailedScores.timer);
@@ -80,6 +100,13 @@ export default function TeamPage() {
     } catch (error) {
       console.error('Error fetching team:', error);
     }
+  };
+
+  const calculateGlobalScore = (teamData: Team, activeChallengeIds: string[]) => {
+    const challengeScores = Object.entries(teamData.detailedScores)
+      .filter(([key]) => activeChallengeIds.includes(key))
+      .reduce((sum, [_, value]) => sum + (typeof value === 'number' ? value : 0), 0);
+    return challengeScores + teamData.interventions * interventionPenalty;
   };
 
   const startTimer = () => {
@@ -198,6 +225,9 @@ export default function TeamPage() {
     );
   }
 
+  const activeChallengeIds = challenges.map((challenge) => challenge.id);
+  const totalScore = calculateGlobalScore(team, activeChallengeIds);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
       <div className="container mx-auto px-4 py-8">
@@ -213,7 +243,7 @@ export default function TeamPage() {
               </h1>
               <div className="flex items-center gap-2">
                 <div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
-                  {team.globalScore}
+                  {totalScore}
                 </div>
                 <span className="text-gray-500 font-medium">points</span>
               </div>
@@ -242,7 +272,7 @@ export default function TeamPage() {
               <div>
                 <div className="text-sm font-medium text-gray-500">Défis Complétés</div>
                 <div className="text-2xl font-bold text-gray-900">
-                  {Object.entries(team.detailedScores).filter(([key, score]) => key !== 'timer' && score > 0).length}/6
+                  {Object.entries(team.detailedScores).filter(([key, score]) => key !== 'timer' && score > 0 && challenges.some((challenge) => challenge.id === key)).length}/{challenges.length}
                 </div>
               </div>
             </div>
@@ -282,10 +312,10 @@ export default function TeamPage() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-xl font-semibold text-gray-900">Interventions</h2>
-              <p className="text-sm text-gray-500 mt-1">Chaque intervention entraîne une pénalité de -3 points</p>
+              <p className="text-sm text-gray-500 mt-1">Chaque intervention entraîne une pénalité de {interventionPenalty} points</p>
             </div>
             <div className="px-4 py-2 bg-red-50 rounded-lg">
-              <span className="text-lg font-semibold text-red-600">-{team.interventions * 3} points</span>
+              <span className="text-lg font-semibold text-red-600">{team.interventions * interventionPenalty} points</span>
             </div>
           </div>
           <div className="flex gap-4">
@@ -380,7 +410,7 @@ export default function TeamPage() {
           </div>
 
           <div className="divide-y divide-gray-100">
-            {CHALLENGES.map((challenge) => {
+            {challenges.map((challenge) => {
               const status = getChallengeStatus(challenge.id);
               return (
                 <div key={challenge.id} className="p-6 transition-colors hover:bg-gray-50">
@@ -477,7 +507,7 @@ export default function TeamPage() {
             <div>
               <h2 className="text-lg text-gray-400 mb-1">Score Total</h2>
               <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
-                {team.globalScore} points
+                {totalScore} points
               </div>
             </div>
           </div>

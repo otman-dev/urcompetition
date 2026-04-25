@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FiPlus, FiEdit2, FiTrash2, FiSave, FiX } from 'react-icons/fi';
 
@@ -26,7 +25,6 @@ interface RegisterFormProps {
 }
 
 export default function RegisterForm({ initialTeams }: RegisterFormProps) {
-  const router = useRouter();
   const [teamName, setTeamName] = useState('');
   const [error, setError] = useState('');
   const [teams, setTeams] = useState<Team[]>(initialTeams);
@@ -66,8 +64,8 @@ export default function RegisterForm({ initialTeams }: RegisterFormProps) {
       }
 
       setTeamName('');
+      setTeams((current) => [...current, data.team].sort((a, b) => a.teamName.localeCompare(b.teamName)));
       showSuccess('Team registered successfully!');
-      router.refresh();
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to register team');
     } finally {
@@ -94,14 +92,20 @@ export default function RegisterForm({ initialTeams }: RegisterFormProps) {
         body: JSON.stringify({ teamName }),
       });
 
+      const data = await response.json();
       if (!response.ok) {
-        throw new Error('Failed to update team');
+        throw new Error(data.error || 'Failed to update team');
       }
 
+      const updatedTeam = data;
       setEditingTeam(null);
       setTeamName('');
+      setTeams((current) =>
+        current
+          .map((team) => (team._id === updatedTeam._id ? updatedTeam : team))
+          .sort((a, b) => a.teamName.localeCompare(b.teamName))
+      );
       showSuccess('Team updated successfully!');
-      router.refresh();
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to update team');
     } finally {
@@ -122,8 +126,8 @@ export default function RegisterForm({ initialTeams }: RegisterFormProps) {
         throw new Error('Failed to delete team');
       }
 
+      setTeams((current) => current.filter((team) => team._id !== teamId));
       showSuccess('Team deleted successfully!');
-      router.refresh();
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to delete team');
     } finally {
@@ -141,27 +145,38 @@ export default function RegisterForm({ initialTeams }: RegisterFormProps) {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 p-6">
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold text-gray-800">Team Registration</h1>
-            <Link
-              href="/"
-              className="inline-flex items-center px-4 py-2 bg-white text-gray-700 rounded-lg border border-gray-200 hover:bg-gray-50 transition-all duration-200 shadow-sm"
-            >
-              <svg
-                className="w-5 h-5 text-gray-500 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800">Team Registration</h1>
+              <p className="text-sm text-gray-500">Only logged-in users can add, edit, or remove teams.</p>
+            </div>
+            <div className="flex gap-3 items-center">
+              <Link
+                href="/api/auth/logout"
+                className="inline-flex items-center px-4 py-2 bg-red-50 text-red-600 rounded-lg border border-red-200 hover:bg-red-100 transition-all duration-200 shadow-sm"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-              Go back home
-            </Link>
+                Logout
+              </Link>
+              <Link
+                href="/"
+                className="inline-flex items-center px-4 py-2 bg-white text-gray-700 rounded-lg border border-gray-200 hover:bg-gray-50 transition-all duration-200 shadow-sm"
+              >
+                <svg
+                  className="w-5 h-5 text-gray-500 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+                Go back home
+              </Link>
+            </div>
           </div>
 
           <form

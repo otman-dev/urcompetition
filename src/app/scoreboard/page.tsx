@@ -1,5 +1,6 @@
 import { connectToDatabase } from '@/lib/mongodb';
 import { Team } from '@/models/Team';
+import { CompetitionConfig } from '@/models/CompetitionConfig';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
@@ -10,31 +11,69 @@ const formatTime = (seconds: number) => {
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };
 
+const calculateGlobalScore = (team: any, activeChallengeIds: string[], penalty: number) => {
+  const challengeScores = Object.entries(team.detailedScores)
+    .filter(([key]) => activeChallengeIds.includes(key))
+    .reduce((sum, [_, value]) => sum + (typeof value === 'number' ? value : 0), 0);
+  return challengeScores + (team.interventions || 0) * penalty;
+};
+
 export default async function ScoreboardPage() {
   await connectToDatabase();
-  const teams = await Team.find().sort({ globalScore: -1 });
+  const teams = await Team.find();
+  const config = await CompetitionConfig.findOne();
+  const penalty = config?.interventionPenalty ?? -3;
 
-  return (    <main className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-8">
+  const activeChallengeIds = config?.challenges.map((challenge: { id: string }) => challenge.id) ?? [];
+  const rankedTeams = teams
+    .map((team: any) => ({
+      ...team.toObject(),
+      totalScore: calculateGlobalScore(team, activeChallengeIds, penalty),
+    }))
+    .sort((a, b) => b.totalScore - a.totalScore);
+
+  return (
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-8">
       <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-12">
-          <Link
-            href="/"
-            className="group px-4 py-2 flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 transform group-hover:-translate-x-1 transition-transform"
-              viewBox="0 0 20 20"
-              fill="currentColor"
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-12">
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href="/"
+              className="group px-4 py-2 flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors rounded-2xl border border-gray-200 bg-white/80 shadow-sm"
             >
-              <path
-                fillRule="evenodd"
-                d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <span>Back to Home</span>
-          </Link>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 transform group-hover:-translate-x-1 transition-transform"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span>Back to Home</span>
+            </Link>
+            <Link
+              href="/admin/users"
+              className="px-4 py-2 rounded-2xl bg-slate-900 text-white transition hover:bg-slate-800"
+            >
+              Manage Users
+            </Link>
+            <Link
+              href="/admin/config"
+              className="px-4 py-2 rounded-2xl bg-slate-700 text-white transition hover:bg-slate-800"
+            >
+              Configure Challenges
+            </Link>
+            <Link
+              href="/api/auth/logout"
+              className="px-4 py-2 rounded-2xl border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition"
+            >
+              Logout
+            </Link>
+          </div>
           <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
             Competition Scoreboard
           </h1>
@@ -48,7 +87,7 @@ export default async function ScoreboardPage() {
             <div className="col-span-3 text-right font-medium">Score</div>
           </div>
           <ul className="divide-y divide-gray-100">
-            {teams.map((team: any, index: number) => (              <li
+            {rankedTeams.map((team: any, index: number) => (              <li
                 key={team._id}
                 className="grid grid-cols-12 gap-4 p-6 hover:bg-blue-50/50 transition-all duration-200 group"
               >
@@ -79,7 +118,7 @@ export default async function ScoreboardPage() {
                 </div>
                 <div className="col-span-3 text-right">
                   <span className="inline-flex items-center gap-2 text-lg font-semibold text-blue-600">
-                    {team.globalScore}
+                    {team.totalScore}
                     <span className="text-sm font-normal text-gray-500">pts</span>
                   </span>
                 </div>

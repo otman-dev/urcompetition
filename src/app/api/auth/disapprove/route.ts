@@ -1,0 +1,35 @@
+import { NextResponse } from 'next/server';
+import { connectToDatabase } from '@/lib/db';
+import { User } from '@/models/User';
+import { getUserFromSession, requireApprovedUser } from '@/lib/auth';
+
+export async function POST(request: Request) {
+  try {
+    const auth = await requireApprovedUser(request);
+    await connectToDatabase();
+
+    const { userId } = await request.json();
+    if (!userId || typeof userId !== 'string') {
+      return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
+    }
+
+    if (auth.user._id.toString() === userId) {
+      return NextResponse.json({ error: 'You cannot change your own approval status' }, { status: 400 });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { approved: false },
+      { new: true }
+    ).select('email role approved');
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: 'User disapproved', user });
+  } catch (error) {
+    console.error('Disapprove user error:', error);
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+}

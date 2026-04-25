@@ -1,10 +1,19 @@
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { Team } from '@/models/Team';
+import { CompetitionConfig } from '@/models/CompetitionConfig';
+import { requireAuth } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 export const preferredRegion = 'auto';
+
+const calculateGlobalScore = (team: any, activeChallengeIds: string[], penalty: number) => {
+  const challengeScores = Object.entries(team.detailedScores)
+    .filter(([key]) => activeChallengeIds.includes(key))
+    .reduce((sum, [_, value]) => sum + (typeof value === 'number' ? value : 0), 0);
+  return challengeScores + (team.interventions || 0) * penalty;
+};
 
 export async function GET(
   request: Request,
@@ -23,6 +32,16 @@ export async function GET(
       );
     }
 
+    const config = await CompetitionConfig.findOne();
+    const penalty = config?.interventionPenalty ?? -3;
+    const activeChallengeIds = config?.challenges.map((challenge: { id: string }) => challenge.id) ?? [];
+    const recalculatedScore = calculateGlobalScore(team, activeChallengeIds, penalty);
+
+    if (team.globalScore !== recalculatedScore) {
+      team.globalScore = recalculatedScore;
+      await team.save();
+    }
+
     return NextResponse.json(team);
   } catch (error) {
     console.error('Error fetching team:', error);
@@ -38,6 +57,11 @@ export async function PUT(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await requireAuth(request);
+    if (!auth) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { id } = await context.params;
     await connectToDatabase();
 

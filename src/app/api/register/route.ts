@@ -1,9 +1,15 @@
 import { connectToDatabase } from '@/lib/mongodb';
 import { Team } from '@/models/Team';
 import { NextResponse } from 'next/server';
+import { requireAuth } from '@/lib/auth';
 
 export async function POST(req: Request) {
   try {
+    const auth = await requireAuth(req);
+    if (!auth) {
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    }
+
     const { teamName } = await req.json();
     
     if (!teamName || typeof teamName !== 'string') {

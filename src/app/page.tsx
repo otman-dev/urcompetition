@@ -8,6 +8,21 @@ export default function HomePage() {
   const [activeFeature, setActiveFeature] = useState<number | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [authenticated, setAuthenticated] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const fetchAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/me');
+        const data = await response.json();
+        setAuthenticated(data.authenticated);
+      } catch {
+        setAuthenticated(false);
+      }
+    };
+
+    fetchAuth();
+  }, []);
 
   useEffect(() => {
     setIsLoaded(true);
@@ -86,27 +101,71 @@ export default function HomePage() {
                 
                 {/* CTA Buttons */}
                 <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-6">
-                  <Link href="/register" className="group perspective">
-                    <button className="relative w-full sm:w-auto px-8 py-4 text-lg bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white rounded-xl transition-all duration-500 transform hover:scale-105 hover:shadow-[0_8px_30px_rgba(79,70,229,0.3)] overflow-hidden group-hover:animate-shine">
-                      <span className="relative z-10 flex items-center justify-center gap-2">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                        </svg>
-                        Register a Team
-                      </span>
-                      <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-all duration-500 group-hover:rotate-180"/>
-                    </button>
-                  </Link>
-                  <Link href="/scoreboard" className="group perspective">
-                    <button className="relative w-full sm:w-auto px-8 py-4 text-lg bg-white text-indigo-600 border-2 border-indigo-600/20 rounded-xl transition-all duration-500 transform hover:scale-105 hover:shadow-[0_8px_30px_rgba(79,70,229,0.2)] hover:border-indigo-600">
-                      <span className="relative z-10 flex items-center justify-center gap-2">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                        </svg>
-                        View Scoreboard
-                      </span>
-                    </button>
-                  </Link>
+                  {authenticated === false ? (
+                    <>
+                      <Link href="/login" className="group perspective">
+                        <button className="relative w-full sm:w-auto px-8 py-4 text-lg bg-indigo-600 text-white rounded-xl transition-all duration-500 transform hover:scale-105 hover:shadow-[0_8px_30px_rgba(79,70,229,0.3)] overflow-hidden">
+                          <span className="relative z-10 flex items-center justify-center gap-2">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h14m-7-7l7 7-7 7" />
+                            </svg>
+                            Login to access the app
+                          </span>
+                        </button>
+                      </Link>
+                      <div className="w-full sm:w-auto rounded-3xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                        Register and scoreboard access require signing in first.
+                      </div>
+                    </>
+                  ) : authenticated === true ? (
+                    <>
+                      <Link href="/register" className="group perspective">
+                        <button className="relative w-full sm:w-auto px-8 py-4 text-lg bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white rounded-xl transition-all duration-500 transform hover:scale-105 hover:shadow-[0_8px_30px_rgba(79,70,229,0.3)] overflow-hidden group-hover:animate-shine">
+                          <span className="relative z-10 flex items-center justify-center gap-2">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                            </svg>
+                            Register a Team
+                          </span>
+                          <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-all duration-500 group-hover:rotate-180"/>
+                        </button>
+                      </Link>
+                      <Link href="/scoreboard" className="group perspective">
+                        <button className="relative w-full sm:w-auto px-8 py-4 text-lg bg-white text-indigo-600 border-2 border-indigo-600/20 rounded-xl transition-all duration-500 transform hover:scale-105 hover:shadow-[0_8px_30px_rgba(79,70,229,0.2)] hover:border-indigo-600">
+                          <span className="relative z-10 flex items-center justify-center gap-2">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                            View Scoreboard
+                          </span>
+                        </button>
+                      </Link>
+                      <Link href="/admin/users" className="group perspective">
+                        <button className="relative w-full sm:w-auto px-8 py-4 text-lg bg-slate-900 text-white rounded-xl transition-all duration-500 transform hover:scale-105 hover:shadow-[0_8px_30px_rgba(15,23,42,0.3)]">
+                          <span className="relative z-10 flex items-center justify-center gap-2">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Manage Users
+                          </span>
+                        </button>
+                      </Link>
+                      <Link href="/admin/config" className="group perspective">
+                        <button className="relative w-full sm:w-auto px-8 py-4 text-lg bg-slate-700 text-white rounded-xl transition-all duration-500 transform hover:scale-105 hover:shadow-[0_8px_30px_rgba(15,23,42,0.3)]">
+                          <span className="relative z-10 flex items-center justify-center gap-2">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Configure Challenges
+                          </span>
+                        </button>
+                      </Link>
+                    </>
+                  ) : (
+                    <div className="w-full sm:w-auto rounded-3xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                      Loading authentication status...
+                    </div>
+                  )}
                 </div>
               </div>
 
