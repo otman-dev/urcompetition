@@ -1,36 +1,129 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# UR Competition
 
-## Getting Started
+This project is a Next.js application using the App Router and Mongoose for MongoDB access. It currently supports team registration, team detail pages, and a scoreboard experience.
 
-First, run the development server:
+> Before deploying to Vercel and connecting MongoDB Atlas, the app needs a few important updates around authentication, user data, and data protection.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Current Status
+
+- Next.js 15 with React 19
+- Team registration form and CRUD operations via `src/app/api/register/route.ts` and `src/app/api/team/[id]/*`
+- MongoDB connection helpers in `src/lib/mongodb.ts` and an unused duplicate file `src/lib/db.ts`
+- Team data is stored in a `Team` Mongoose model
+- User login/authentication is not implemented yet
+
+## Updates Needed Before Deployment
+
+### 1. Add admin authentication only
+
+- Create an `Admin` or `User` model with fields like:
+  - `email`
+  - `passwordHash`
+  - `name`
+  - `role` with a fixed value like `admin`
+  - `competitionId` or `competitionName`
+- Implement a login flow just for the admin user:
+  - login page
+  - logout button
+  - protected admin dashboard
+- No public user registration is required.
+- Use secure password hashing (bcrypt or Argon2) and never store raw passwords.
+- Add session handling using:
+  - `next-auth`, or
+  - custom cookie-based JWT/session logic.
+
+### 2. Ensure only admin can manage their competition's teams
+
+- Restrict team registration and management functionality to the authenticated admin.
+- Add a competition scope so each admin only sees data for their own competition.
+- Protect all admin pages and API routes:
+  - `/api/register`
+  - `/api/team/[id]/*`
+  - the admin team management page(s)
+- In the database, associate each team with the admin's competition:
+  - `competitionId`
+  - `registeredByAdminId`
+- Server-side API checks must verify the authenticated admin's competition before returning or modifying teams.
+- No team-level users are needed, because teams do not log in or interact with the site.
+
+### 3. Clean up database helpers and models
+
+- Consolidate MongoDB connection logic into a single file, ideally `src/lib/mongodb.ts`.
+- Remove or merge the duplicate `src/lib/db.ts` file.
+- Confirm the connection helper uses `process.env.MONGODB_URI` and throws a clear error if missing.
+
+### 4. Update data model for production use
+
+- Update the `Team` schema to include ownership fields such as:
+  - `competitionId: string` or `mongoose.Schema.Types.ObjectId`
+  - `registeredByAdminId: mongoose.Schema.Types.ObjectId`
+  - optional `createdAt` / `updatedAt`
+- Add a `User`/`Admin` schema and ensure API routes use the authenticated admin's competition scope.
+- Consider adding a `TeamProfile` page for the admin dashboard and a separate competition details page.
+
+### 5. MongoDB Atlas configuration
+
+- Create a MongoDB Atlas cluster and database.
+- Add the connection string to `.env.local` as:
+
+```env
+MONGODB_URI="your-atlas-connection-string"
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Keep `.env.local` out of git and confirm `.gitignore` contains `.env*`.
+- Add the same `MONGODB_URI` value to Vercel project environment variables.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 6. Secure app configuration and secrets
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Ensure `.gitignore` includes:
+  - `.env*`
+  - `.aidevops/`
+- Do not commit credentials or Atlas URIs to the repository.
+- Validate all incoming API input and sanitize strings.
 
-## Learn More
+### 7. Review frontend behavior and data flow
 
-To learn more about Next.js, take a look at the following resources:
+- Replace localStorage timer persistence with server-side persistence once auth is in place, or keep it as optional client state.
+- Ensure users can only see/edit their own team information.
+- Add error / access denied UI for unauthorized access.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 8. Prepare for Vercel deployment
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Confirm `package.json` has:
+  - `dev`, `build`, `start`, `lint`
+- Confirm the app builds successfully with `npm run build`.
+- Add any Vercel-specific config if needed (optional `vercel.json`).
+- Set Vercel environment variables for production:
+  - `MONGODB_URI`
+  - any other secret keys if using custom auth or JWT
 
-## Deploy on Vercel
+## Recommended Implementation Plan
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Add an `Admin`/`User` Mongoose model with `competitionId`.
+2. Add a login page and admin dashboard.
+3. Implement secure sessions/auth middleware.
+4. Associate teams with the admin's competition and confirm scope checks.
+5. Protect API routes and pages so only the correct admin can access their competition data.
+6. Configure MongoDB Atlas and `MONGODB_URI` locally.
+7. Test locally and verify build.
+8. Deploy to Vercel with the correct env vars.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Next Steps After These Updates
+
+- Deploy the GitHub repo to Vercel.
+- Add `MONGODB_URI` to Vercel environment settings.
+- Confirm the deployed app authenticates users and shows only their team details.
+- Optionally add admin controls or a global scoreboard page.
+
+## Local Development
+
+```bash
+npm install
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000).
+
+---
+
+If you want, I can also create the next development plan for implementing the `User` model, auth pages, and protected API routes step by step.
