@@ -60,7 +60,7 @@ export async function POST(
     team.globalScore = challengeScores + interventionPenalty;
 
     await team.save();
-    return NextResponse.json(team);
+    return NextResponse.json(team.toObject());
   } catch (error) {
     console.error('Error updating challenge:', error);
     return NextResponse.json(

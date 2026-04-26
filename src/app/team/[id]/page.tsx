@@ -213,8 +213,9 @@ export default function TeamPage() {
 
   const getChallengeStatus = (challengeId: string) => {
     if (!team) return null;
-    const score = team.detailedScores[challengeId as keyof typeof team.detailedScores];
-    return score > 0 ? 'success' : score === 0 ? 'fail' : null;
+    const score = team.detailedScores[challengeId];
+    if (typeof score !== 'number') return null;
+    return score > 0 ? 'success' : 'fail';
   };
   if (!team) {
     return (
@@ -227,7 +228,9 @@ export default function TeamPage() {
     );
   }
 
-  const activeChallengeIds = challenges.map((challenge) => challenge.id);
+  const activeChallengeIds = challenges
+    .map((challenge) => challenge.id)
+    .filter((id) => id !== 'timer');
   const totalScore = calculateGlobalScore(team, activeChallengeIds);
 
   return (
