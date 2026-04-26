@@ -29,7 +29,7 @@ export default function LoginPage() {
         return;
       }
 
-      router.push('/scoreboard');
+      router.push('/');
     } catch (err) {
       setError('Login failed. Please try again.');
     } finally {
