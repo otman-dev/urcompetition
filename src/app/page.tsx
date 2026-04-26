@@ -2,13 +2,26 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function HomePage() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [activeFeature, setActiveFeature] = useState<number | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [scrollProgress, setScrollProgress] = useState(0);
+  const router = useRouter();
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      setAuthenticated(false);
+      router.push('/');
+    }
+  };
 
   useEffect(() => {
     const fetchAuth = async () => {
@@ -160,16 +173,18 @@ export default function HomePage() {
                           </span>
                         </button>
                       </Link>
-                      <Link href="/api/auth/logout" className="group perspective">
-                        <button className="relative w-full sm:w-auto px-8 py-4 text-lg bg-red-600 text-white rounded-xl transition-all duration-500 transform hover:scale-105 hover:shadow-[0_8px_30px_rgba(220,38,38,0.3)]">
-                          <span className="relative z-10 flex items-center justify-center gap-2">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1"/>
-                            </svg>
-                            Logout
-                          </span>
-                        </button>
-                      </Link>
+                      <button
+                        type="button"
+                        onClick={handleLogout}
+                        className="relative w-full sm:w-auto px-8 py-4 text-lg bg-red-600 text-white rounded-xl transition-all duration-500 transform hover:scale-105 hover:shadow-[0_8px_30px_rgba(220,38,38,0.3)]"
+                      >
+                        <span className="relative z-10 flex items-center justify-center gap-2">
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1"/>
+                          </svg>
+                          Logout
+                        </span>
+                      </button>
                     </>
                   ) : (
                     <div className="w-full sm:w-auto rounded-3xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
