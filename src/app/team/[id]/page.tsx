@@ -180,7 +180,7 @@ export default function TeamPage() {
         throw new Error(data.message || 'Failed to update challenge');
       }
 
-      setTeam(data);
+      await fetchTeam();
     } catch (error) {
       console.error('Error updating challenge:', error);
       const message = error instanceof Error ? error.message : 'Failed to update challenge';
@@ -298,7 +298,7 @@ export default function TeamPage() {
               </div>
               <div>
                 <div className="text-sm font-medium text-gray-500">Temps Total</div>
-                <div className="text-2xl font-bold text-gray-900">{formatTime(team.detailedScores.timer)}</div>
+                <div className="text-2xl font-bold text-gray-900">{formatTime(time)}</div>
               </div>
             </div>
           </div>
