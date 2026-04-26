@@ -64,47 +64,68 @@ export default async function ScoreboardPage() {
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden border border-gray-100">
           <div className="grid grid-cols-12 gap-4 p-6 bg-gradient-to-r from-gray-800 to-gray-900 text-white">
             <div className="col-span-1 text-center font-medium">Rank</div>
-            <div className="col-span-5 font-medium">Team</div>
-            <div className="col-span-3 text-center font-medium">Time</div>
-            <div className="col-span-3 text-right font-medium">Score</div>
+            <div className="col-span-4 font-medium">Team</div>
+            <div className="col-span-2 text-center font-medium">Défis Complétés</div>
+            <div className="col-span-1 text-center font-medium">Interventions</div>
+            <div className="col-span-1 text-center font-medium">Pénalité</div>
+            <div className="col-span-2 text-center font-medium">Time</div>
+            <div className="col-span-1 text-right font-medium">Score</div>
           </div>
           <ul className="divide-y divide-gray-100">
-            {rankedTeams.map((team: any, index: number) => (              <li
-                key={team._id}
-                className="grid grid-cols-12 gap-4 p-6 hover:bg-blue-50/50 transition-all duration-200 group"
-              >
-                <div className="col-span-1 text-center">
-                  <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full 
-                    ${index < 3 ? 'bg-gradient-to-br text-white font-semibold' : 'bg-gray-100 text-gray-600'} 
-                    ${index === 0 ? 'from-yellow-400 to-yellow-500' : ''}
-                    ${index === 1 ? 'from-gray-300 to-gray-400' : ''}
-                    ${index === 2 ? 'from-amber-600 to-amber-700' : ''}`}>
-                    {index + 1}
-                  </span>
-                </div>
-                <div className="col-span-5">
-                  <Link
-                    href={`/team/${team._id}`}
-                    className="inline-block font-medium text-gray-900 group-hover:text-blue-600 transition-colors"
-                  >
-                    {team.teamName}
-                  </Link>
-                </div>
-                <div className="col-span-3 text-center">
-                  <span className="inline-flex items-center gap-2 font-medium text-gray-700">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    {formatTime(team.detailedScores.timer)}
-                  </span>
-                </div>
-                <div className="col-span-3 text-right">
-                  <span className="inline-flex items-center gap-2 text-lg font-semibold text-blue-600">
-                    {team.totalScore}
-                    <span className="text-sm font-normal text-gray-500">pts</span>
-                  </span>
-                </div>
-              </li>))}
+            {rankedTeams.map((team: any, index: number) => {
+              const completedCount = Object.entries(team.detailedScores)
+                .filter(([key, value]) => key !== 'timer' && activeChallengeIds.includes(key) && typeof value === 'number' && value > 0)
+                .length;
+              const interventionCount = team.interventions || 0;
+              const penaltyValue = interventionCount * penalty;
+              return (
+                <li
+                  key={team._id}
+                  className="grid grid-cols-12 gap-4 p-6 hover:bg-blue-50/50 transition-all duration-200 group"
+                >
+                  <div className="col-span-1 text-center">
+                    <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full 
+                      ${index < 3 ? 'bg-gradient-to-br text-white font-semibold' : 'bg-gray-100 text-gray-600'} 
+                      ${index === 0 ? 'from-yellow-400 to-yellow-500' : ''}
+                      ${index === 1 ? 'from-gray-300 to-gray-400' : ''}
+                      ${index === 2 ? 'from-amber-600 to-amber-700' : ''}`}>
+                      {index + 1}
+                    </span>
+                  </div>
+                  <div className="col-span-4">
+                    <Link
+                      href={`/team/${team._id}`}
+                      className="inline-block font-medium text-gray-900 group-hover:text-blue-600 transition-colors"
+                    >
+                      {team.teamName}
+                    </Link>
+                  </div>
+                  <div className="col-span-2 text-center">
+                    <span className="text-gray-900 font-medium">{completedCount}/{activeChallengeIds.length}</span>
+                  </div>
+                  <div className="col-span-1 text-center">
+                    <span className="text-gray-900 font-medium">{interventionCount}</span>
+                  </div>
+                  <div className="col-span-1 text-center">
+                    <span className="text-red-600 font-medium">{penaltyValue}</span>
+                  </div>
+                  <div className="col-span-2 text-center">
+                    <span className="inline-flex items-center gap-2 font-medium text-gray-700">
+                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      {formatTime(team.detailedScores.timer)}
+                    </span>
+                  </div>
+                  <div className="col-span-2 text-right">
+                    <span className="inline-flex items-center gap-2 text-lg font-semibold text-blue-600">
+                      {team.totalScore}
+                      <span className="text-sm font-normal text-gray-500">pts</span>
+                    </span>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         </div>
 
