@@ -190,7 +190,7 @@ export default function AdminConfigPage() {
                           type="text"
                           value={challenge.name}
                           onChange={(e) => updateChallenge(index, 'name', e.target.value)}
-                          className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm"
+                          className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm text-black"
                         />
                       </div>
                       <div>
@@ -200,7 +200,7 @@ export default function AdminConfigPage() {
                           min={0}
                           value={challenge.points}
                           onChange={(e) => updateChallenge(index, 'points', Number(e.target.value))}
-                          className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm"
+                          className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm text-black"
                         />
                       </div>
                       <div className="flex items-end justify-end">
@@ -227,7 +227,7 @@ export default function AdminConfigPage() {
                         type="number"
                         value={interventionPenalty}
                         onChange={(e) => setInterventionPenalty(Number(e.target.value))}
-                        className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm"
+                        className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm text-black"
                       />
                     </div>
                   </div>
