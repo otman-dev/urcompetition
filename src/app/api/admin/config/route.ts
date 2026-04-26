@@ -73,10 +73,6 @@ export async function POST(request: Request) {
       { challenges: validated, interventionPenalty: penaltyValue },
       { upsert: true, new: true }
     );
-      {},
-      { challenges: validated, interventionPenalty },
-      { upsert: true, new: true }
-    );
 
     return NextResponse.json({ message: 'Configuration saved', config });
   } catch (error) {
