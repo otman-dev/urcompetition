@@ -28,6 +28,7 @@ export default function TeamPage() {
   const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
   const [challenges, setChallenges] = useState<ChallengeConfigItem[]>([]);
   const [interventionPenalty, setInterventionPenalty] = useState(-3);
+  const [challengeError, setChallengeError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchTeam();
@@ -82,7 +83,7 @@ export default function TeamPage() {
 
   const fetchTeam = async () => {
     try {
-      const response = await fetch(`/api/team/${params.id}`);
+      const response = await fetch(`/api/team/${params.id}`, { cache: 'no-store' });
       const data = await response.json();
       setTeam({ ...data, globalScore: data.globalScore ?? 0 });
       // Only set the timer if it hasn't been started yet
@@ -167,14 +168,23 @@ export default function TeamPage() {
 
   const updateChallenge = async (challengeId: string, success: boolean) => {
     try {
-      await fetch(`/api/team/${params.id}/challenge`, {
+      setChallengeError(null);
+      const response = await fetch(`/api/team/${params.id}/challenge`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ challengeId, success }),
       });
-      await fetchTeam(); // Refresh team data
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to update challenge');
+      }
+
+      setTeam(data);
     } catch (error) {
       console.error('Error updating challenge:', error);
+      const message = error instanceof Error ? error.message : 'Failed to update challenge';
+      setChallengeError(message);
     }
   };
 
@@ -251,6 +261,12 @@ export default function TeamPage() {
             </Link>
           </div>
         </div>
+
+        {challengeError && (
+          <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-red-700">
+            {challengeError}
+          </div>
+        )}
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -446,6 +462,7 @@ export default function TeamPage() {
                     {challenge.id !== 'timer' ? (
                       <div className="flex items-center gap-3">
                         <button
+                          type="button"
                           onClick={() => updateChallenge(challenge.id, true)}
                           className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
                             status === 'success'
@@ -459,6 +476,7 @@ export default function TeamPage() {
                           Réussi
                         </button>
                         <button
+                          type="button"
                           onClick={() => updateChallenge(challenge.id, false)}
                           className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
                             status === 'fail'
