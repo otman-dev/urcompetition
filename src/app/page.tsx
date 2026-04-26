@@ -87,10 +87,10 @@ export default function HomePage() {
 
       {/* Hero Section */}
       <div className="relative">
-        <div className="container mx-auto px-4 pt-24 pb-16">
+        <div className="container mx-auto px-4 pt-10 pb-6">
           <div className="max-w-6xl mx-auto">
             {/* Hero Content */}
-            <div className="flex flex-col lg:flex-row items-center gap-12">
+            <div className="flex flex-col lg:flex-row items-center gap-7">
               {/* Text Content */}
               <div 
                 className="flex-1 text-center lg:text-left"
@@ -100,24 +100,31 @@ export default function HomePage() {
                   transition: 'all 1s ease-out',
                 }}
               >
-                <h1 className="text-5xl sm:text-7xl font-bold text-gray-900 mb-8">
+                <div className="mx-auto mb-6 w-full max-w-xs sm:max-w-sm lg:max-w-sm">
+                  <img
+                    src="/UPF LOGO CLUBS-robotique-09.png"
+                    alt="UPF Clubs Robotique Logo"
+                    className="mx-auto h-auto w-full object-contain"
+                  />
+                </div>
+                <h1 className="text-3xl sm:text-5xl font-bold text-gray-900 mb-4">
                   <span className="inline-block transform hover:scale-105 transition-transform duration-300">
                     <span className="relative text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:bg-gradient-to-l cursor-default">
-                      URCompetition
+                      2026 PRO Challenge 
                       <span className="absolute -inset-1 bg-gradient-to-r from-blue-600/20 via-indigo-600/20 to-purple-600/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     </span>
                   </span>
                 </h1>
-                <p className="text-xl sm:text-2xl text-gray-600 mb-12 leading-relaxed">
+                <p className="text-sm sm:text-base text-gray-600 mb-6 leading-snug">
                   Experience the future of robotics competitions with real-time scoring, precision timing, and live rankings.
                 </p>
                 
                 {/* CTA Buttons */}
-                <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-6">
+                <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-3">
                   {authenticated === false ? (
                     <>
                       <Link href="/login" className="group perspective">
-                        <button className="relative w-full sm:w-auto px-8 py-4 text-lg bg-indigo-600 text-white rounded-xl transition-all duration-500 transform hover:scale-105 hover:shadow-[0_8px_30px_rgba(79,70,229,0.3)] overflow-hidden">
+                        <button className="relative w-full sm:w-auto px-5 py-2.5 text-sm bg-indigo-600 text-white rounded-xl transition-all duration-500 transform hover:scale-105 hover:shadow-[0_8px_24px_rgba(79,70,229,0.25)] overflow-hidden">
                           <span className="relative z-10 flex items-center justify-center gap-2">
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h14m-7-7l7 7-7 7" />
@@ -131,61 +138,65 @@ export default function HomePage() {
                       </div>
                     </>
                   ) : authenticated === true ? (
-                    <>
-                      <Link href="/register" className="group perspective">
-                        <button className="relative w-full sm:w-auto px-8 py-4 text-lg bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white rounded-xl transition-all duration-500 transform hover:scale-105 hover:shadow-[0_8px_30px_rgba(79,70,229,0.3)] overflow-hidden group-hover:animate-shine">
+                    <div className="flex flex-col gap-4 w-full">
+                      <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-3">
+                        <Link href="/register" className="group perspective">
+                          <button className="relative w-full sm:w-auto px-6 py-3 text-base bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white rounded-xl transition-all duration-500 transform hover:scale-105 hover:shadow-[0_8px_30px_rgba(79,70,229,0.3)] overflow-hidden group-hover:animate-shine">
+                            <span className="relative z-10 flex items-center justify-center gap-2">
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                              </svg>
+                              Register a Team
+                            </span>
+                            <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-all duration-500 group-hover:rotate-180"/>
+                          </button>
+                        </Link>
+                        <Link href="/scoreboard" className="group perspective">
+                          <button className="relative w-full sm:w-auto px-6 py-3 text-base bg-white text-indigo-600 border-2 border-indigo-600/20 rounded-xl transition-all duration-500 transform hover:scale-105 hover:shadow-[0_8px_30px_rgba(79,70,229,0.2)] hover:border-indigo-600">
+                            <span className="relative z-10 flex items-center justify-center gap-2">
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                              </svg>
+                              View Scoreboard
+                            </span>
+                          </button>
+                        </Link>
+                      </div>
+                      <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-3">
+                        <Link href="/admin/users" className="group perspective">
+                          <button className="relative w-full sm:w-auto px-6 py-3 text-sm bg-white text-slate-900 border border-slate-200 rounded-xl transition-all duration-500 transform hover:scale-105 hover:border-slate-300 hover:bg-slate-100 shadow-sm">
+                            <span className="relative z-10 flex items-center justify-center gap-2">
+                              <svg className="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"/>
+                              </svg>
+                              Manage Users
+                            </span>
+                          </button>
+                        </Link>
+                        <Link href="/admin/config" className="group perspective">
+                          <button className="relative w-full sm:w-auto px-6 py-3 text-sm bg-slate-100 text-slate-900 border border-slate-200 rounded-xl transition-all duration-500 transform hover:scale-105 hover:border-slate-300 hover:bg-slate-200 shadow-sm">
+                            <span className="relative z-10 flex items-center justify-center gap-2">
+                              <svg className="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"/>
+                              </svg>
+                              Configure Challenges
+                            </span>
+                          </button>
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={handleLogout}
+                          className="relative w-full sm:w-auto px-6 py-3 text-sm bg-red-600 text-white rounded-xl transition-all duration-500 transform hover:scale-105 hover:shadow-[0_8px_24px_rgba(220,38,38,0.25)]"
+                        >
                           <span className="relative z-10 flex items-center justify-center gap-2">
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1"/>
                             </svg>
-                            Register a Team
-                          </span>
-                          <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-all duration-500 group-hover:rotate-180"/>
-                        </button>
-                      </Link>
-                      <Link href="/scoreboard" className="group perspective">
-                        <button className="relative w-full sm:w-auto px-8 py-4 text-lg bg-white text-indigo-600 border-2 border-indigo-600/20 rounded-xl transition-all duration-500 transform hover:scale-105 hover:shadow-[0_8px_30px_rgba(79,70,229,0.2)] hover:border-indigo-600">
-                          <span className="relative z-10 flex items-center justify-center gap-2">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                            </svg>
-                            View Scoreboard
+                            Logout
                           </span>
                         </button>
-                      </Link>
-                      <Link href="/admin/users" className="group perspective">
-                        <button className="relative w-full sm:w-auto px-8 py-4 text-lg bg-slate-900 text-white rounded-xl transition-all duration-500 transform hover:scale-105 hover:shadow-[0_8px_30px_rgba(15,23,42,0.3)]">
-                          <span className="relative z-10 flex items-center justify-center gap-2">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"/>
-                            </svg>
-                            Manage Users
-                          </span>
-                        </button>
-                      </Link>
-                      <Link href="/admin/config" className="group perspective">
-                        <button className="relative w-full sm:w-auto px-8 py-4 text-lg bg-slate-700 text-white rounded-xl transition-all duration-500 transform hover:scale-105 hover:shadow-[0_8px_30px_rgba(15,23,42,0.3)]">
-                          <span className="relative z-10 flex items-center justify-center gap-2">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"/>
-                            </svg>
-                            Configure Challenges
-                          </span>
-                        </button>
-                      </Link>
-                      <button
-                        type="button"
-                        onClick={handleLogout}
-                        className="relative w-full sm:w-auto px-8 py-4 text-lg bg-red-600 text-white rounded-xl transition-all duration-500 transform hover:scale-105 hover:shadow-[0_8px_30px_rgba(220,38,38,0.3)]"
-                      >
-                        <span className="relative z-10 flex items-center justify-center gap-2">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1"/>
-                          </svg>
-                          Logout
-                        </span>
-                      </button>
-                    </>
+                      </div>
+                    </div>
                   ) : (
                     <div className="w-full sm:w-auto rounded-3xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
                       Loading authentication status...
@@ -207,9 +218,9 @@ export default function HomePage() {
                 <Image
                   src="/robot.svg"
                   alt="Robot illustration"
-                  width={600}
-                  height={600}
-                  className="w-full h-auto max-w-lg mx-auto animate-float"
+                  width={520}
+                  height={520}
+                  className="w-full h-auto max-w-md mx-auto animate-float"
                   priority
                 />
               </div>
@@ -217,7 +228,7 @@ export default function HomePage() {
 
             {/* Feature Cards */}
             <div 
-              className="mt-32 grid grid-cols-1 md:grid-cols-3 gap-8"
+              className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-4"
               style={{
                 transform: isLoaded ? 'translateY(0)' : 'translateY(2rem)',
                 opacity: isLoaded ? 1 : 0,
@@ -252,7 +263,7 @@ export default function HomePage() {
               ].map((feature, index) => (
                 <div
                   key={feature.title}
-                  className="group relative p-8 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 overflow-hidden"
+                  className="group relative p-5 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 overflow-hidden"
                   onMouseEnter={() => setActiveFeature(index)}
                   onMouseLeave={() => setActiveFeature(null)}
                   style={{
@@ -288,7 +299,7 @@ export default function HomePage() {
 
       {/* Statistics Section */}
       <div 
-        className="relative py-24 bg-gradient-to-b from-transparent via-indigo-50/50 to-transparent"
+        className="relative py-12 bg-gradient-to-b from-transparent via-indigo-50/50 to-transparent"
         style={{
           transform: isLoaded ? 'translateY(0)' : 'translateY(2rem)',
           opacity: isLoaded ? 1 : 0,
@@ -297,7 +308,7 @@ export default function HomePage() {
         }}
       >
         <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             {[
               { value: '100+', label: 'Teams' },
               { value: '50+', label: 'Challenges' },
@@ -305,10 +316,10 @@ export default function HomePage() {
               { value: '24/7', label: 'Support' }
             ].map((stat, index) => (
               <div key={stat.label} className="group">
-                <div className="text-4xl font-bold text-indigo-600 mb-2 group-hover:scale-110 transition-transform duration-300">
+                <div className="text-3xl font-bold text-indigo-600 mb-1 group-hover:scale-110 transition-transform duration-300">
                   {stat.value}
                 </div>
-                <div className="text-gray-600">{stat.label}</div>
+                <div className="text-sm text-gray-600">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -317,7 +328,7 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer 
-        className="relative py-12 bg-gradient-to-t from-white/80 to-transparent"
+        className="relative py-6 bg-transparent"
         style={{
           transform: isLoaded ? 'translateY(0)' : 'translateY(2rem)',
           opacity: isLoaded ? 1 : 0,
@@ -332,7 +343,7 @@ export default function HomePage() {
               MOUHIB Otman
             </span>
             <span className="mx-2">•</span>
-            <span className="text-gray-500">{new Date().getFullYear()}</span>
+            <span className="text-gray-500">2025</span>
           </p>
         </div>
       </footer>
