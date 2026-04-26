@@ -29,7 +29,13 @@ export default function AdminConfigPage() {
           setError(data.error || 'Failed to load configuration');
           return;
         }
-        setChallenges(data.challenges || []);
+        setChallenges(
+          (data.challenges || []).map((challenge: any) => ({
+            id: String(challenge.id || ''),
+            name: String(challenge.name || ''),
+            points: Number(challenge.points ?? 0),
+          }))
+        );
         setInterventionPenalty(typeof data.interventionPenalty === 'number' ? data.interventionPenalty : -3);
       } catch (err) {
         console.error(err);
@@ -67,10 +73,38 @@ export default function AdminConfigPage() {
     setMessage(null);
 
     try {
+      const normalizedChallenges = challenges.map((challenge) => ({
+        id: challenge.id,
+        name: String(challenge.name || '').trim(),
+        points: Number(challenge.points),
+      }));
+
+      const invalidChallenge = normalizedChallenges.find(
+        (challenge) =>
+          !challenge.id ||
+          !challenge.name ||
+          !Number.isFinite(challenge.points) ||
+          challenge.points < 0
+      );
+
+      if (invalidChallenge) {
+        setError(`Invalid configuration for challenge ${invalidChallenge.id || 'unknown'}`);
+        setSaving(false);
+        return;
+      }
+
+      const ids = normalizedChallenges.map((challenge) => challenge.id);
+      const uniqueIds = new Set(ids);
+      if (uniqueIds.size !== ids.length) {
+        setError('Duplicate challenge IDs are not allowed');
+        setSaving(false);
+        return;
+      }
+
       const response = await fetch('/api/admin/config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ challenges, interventionPenalty }),
+        body: JSON.stringify({ challenges: normalizedChallenges, interventionPenalty: Number(interventionPenalty) }),
       });
       const data = await response.json();
       if (!response.ok) {
