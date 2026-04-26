@@ -45,6 +45,7 @@ export async function POST(
 
     // Only store the time value (completely separate from score calculation)
     team.detailedScores.timer = timeValue;
+    team.markModified('detailedScores');
 
     // Ensure timer is excluded from global score calculation
     // Get the existing scores and recalculate the total (excluding timer)

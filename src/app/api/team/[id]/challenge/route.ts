@@ -51,6 +51,7 @@ export async function POST(
     team.detailedScores[challengeId as keyof typeof team.detailedScores] = success
       ? challenge.points
       : 0;
+    team.markModified('detailedScores');
 
     const challengeScores = Object.entries(team.detailedScores)
       .filter(([key]) => key !== 'timer' && activeChallengeIds.includes(key))

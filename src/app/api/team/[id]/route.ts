@@ -42,7 +42,7 @@ export async function GET(
       await team.save();
     }
 
-    return NextResponse.json(team);
+    return NextResponse.json(team.toObject());
   } catch (error) {
     console.error('Error fetching team:', error);
     return NextResponse.json(
