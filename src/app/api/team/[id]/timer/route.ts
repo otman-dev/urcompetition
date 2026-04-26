@@ -51,7 +51,7 @@ export async function POST(
     const config = await CompetitionConfig.findOne();
     const activeChallengeIds = config?.challenges.map((item: { id: string }) => item.id) ?? [];
     const challengeScores = Object.entries(team.detailedScores)
-      .filter(([key]) => activeChallengeIds.includes(key))
+      .filter(([key]) => key !== 'timer' && activeChallengeIds.includes(key))
       .reduce((sum, [_, value]) => sum + (typeof value === 'number' ? value : 0), 0);
 
     // Calculate intervention penalty

@@ -13,7 +13,7 @@ const formatTime = (seconds: number) => {
 
 const calculateGlobalScore = (team: any, activeChallengeIds: string[], penalty: number) => {
   const challengeScores = Object.entries(team.detailedScores)
-    .filter(([key]) => activeChallengeIds.includes(key))
+    .filter(([key]) => key !== 'timer' && activeChallengeIds.includes(key))
     .reduce((sum, [_, value]) => sum + (typeof value === 'number' ? value : 0), 0);
   return challengeScores + (team.interventions || 0) * penalty;
 };

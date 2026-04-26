@@ -97,7 +97,7 @@ export default function TeamPage() {
 
   const calculateGlobalScore = (teamData: Team, activeChallengeIds: string[]) => {
     const challengeScores = Object.entries(teamData.detailedScores)
-      .filter(([key]) => activeChallengeIds.includes(key))
+      .filter(([key]) => key !== 'timer' && activeChallengeIds.includes(key))
       .reduce((sum, [_, value]) => sum + (typeof value === 'number' ? value : 0), 0);
     return challengeScores + teamData.interventions * interventionPenalty;
   };

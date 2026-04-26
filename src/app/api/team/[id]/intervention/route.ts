@@ -50,7 +50,7 @@ export async function POST(
     }
 
     const challengeScores = Object.entries(team.detailedScores)
-      .filter(([key]) => activeChallengeIds.includes(key))
+      .filter(([key]) => key !== 'timer' && activeChallengeIds.includes(key))
       .reduce((sum, [_, value]) => sum + (typeof value === 'number' ? value : 0), 0);
 
     team.globalScore = challengeScores + team.interventions * penalty;
