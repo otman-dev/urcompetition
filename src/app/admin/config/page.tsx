@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 interface ChallengeConfigItem {
@@ -132,20 +133,28 @@ export default function AdminConfigPage() {
     <main className="min-h-screen bg-slate-50 p-8">
       <div className="max-w-5xl mx-auto">
         <div className="mb-8 rounded-3xl bg-white p-8 shadow-lg">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h1 className="text-3xl font-bold text-slate-900">Competition Settings</h1>
               <p className="text-slate-600 mt-2">
                 Configure your challenge list and intervention penalty from the web interface.
               </p>
             </div>
-            <button
-              onClick={handleSave}
-              disabled={saving || loading}
-              className="inline-flex items-center justify-center rounded-2xl bg-indigo-600 px-6 py-3 text-white shadow-lg transition hover:bg-indigo-700 disabled:opacity-60"
-            >
-              {saving ? 'Saving...' : 'Save Configuration'}
-            </button>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <Link
+                href="/"
+                className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-6 py-3 text-slate-900 shadow-sm transition hover:bg-slate-50"
+              >
+                Return to Home
+              </Link>
+              <button
+                onClick={handleSave}
+                disabled={saving || loading}
+                className="inline-flex items-center justify-center rounded-2xl bg-indigo-600 px-6 py-3 text-white shadow-lg transition hover:bg-indigo-700 disabled:opacity-60"
+              >
+                {saving ? 'Saving...' : 'Save Configuration'}
+              </button>
+            </div>
           </div>
 
           {loading ? (
