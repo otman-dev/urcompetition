@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 export const preferredRegion = 'auto';
 
-const VALID_IDS = ['defi1', 'defi2', 'defi3', 'defi4', 'defi5', 'defi6'];
+const VALID_ID_PATTERN = /^defi\d+$/i;
 
 export async function GET(request: Request) {
   try {
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
 
       if (
         !id ||
-        !VALID_IDS.includes(id) ||
+        !VALID_ID_PATTERN.test(id) ||
         !name ||
         !Number.isFinite(points) ||
         points < 0

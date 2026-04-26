@@ -8,8 +8,6 @@ interface ChallengeConfigItem {
   points: number;
 }
 
-const ALL_IDS = ['defi1', 'defi2', 'defi3', 'defi4', 'defi5', 'defi6'];
-
 export default function AdminConfigPage() {
   const [challenges, setChallenges] = useState<ChallengeConfigItem[]>([]);
   const [interventionPenalty, setInterventionPenalty] = useState(-3);
@@ -48,10 +46,20 @@ export default function AdminConfigPage() {
     loadConfig();
   }, []);
 
+  const getNextChallengeId = () => {
+    const existingNumbers = challenges
+      .map((item) => {
+        const match = item.id.match(/^defi(\d+)$/i);
+        return match ? Number(match[1]) : 0;
+      })
+      .filter((n) => Number.isFinite(n) && n > 0);
+
+    const nextNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) + 1 : 1;
+    return `defi${nextNumber}`;
+  };
+
   const addChallenge = () => {
-    const usedIds = new Set(challenges.map((item) => item.id));
-    const nextId = ALL_IDS.find((id) => !usedIds.has(id));
-    if (!nextId) return;
+    const nextId = getNextChallengeId();
     setChallenges((current) => [...current, { id: nextId, name: '', points: 20 }]);
   };
 
@@ -120,8 +128,6 @@ export default function AdminConfigPage() {
     }
   };
 
-  const availableIds = ALL_IDS.filter((id) => !challenges.some((challenge) => challenge.id === id));
-
   return (
     <main className="min-h-screen bg-slate-50 p-8">
       <div className="max-w-5xl mx-auto">
@@ -160,7 +166,6 @@ export default function AdminConfigPage() {
                   </div>
                   <button
                     onClick={addChallenge}
-                    disabled={availableIds.length === 0}
                     className="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700 disabled:opacity-60"
                   >
                     Ajouter un défi

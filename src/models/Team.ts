@@ -5,15 +5,7 @@ interface ITeam {
   teamName: string;
   globalScore: number;
   interventions: number;
-  detailedScores: {
-    defi1: number;
-    defi2: number;
-    defi3: number;
-    defi4: number;
-    defi5: number;
-    defi6: number;
-    timer: number;
-  };
+  detailedScores: Record<string, number>;
   timerScore: number;
 }
 
@@ -22,13 +14,8 @@ const TeamSchema = new Schema<ITeam>({
   globalScore: { type: Number, default: 0 },
   interventions: { type: Number, default: 0 },
   detailedScores: {
-    defi1: { type: Number, default: 0 },
-    defi2: { type: Number, default: 0 },
-    defi3: { type: Number, default: 0 },
-    defi4: { type: Number, default: 0 },
-    defi5: { type: Number, default: 0 },
-    defi6: { type: Number, default: 0 },
-    timer: { type: Number, default: 0 },
+    type: Schema.Types.Mixed,
+    default: { timer: 0 },
   },
   timerScore: { type: Number, default: 0 },
 });

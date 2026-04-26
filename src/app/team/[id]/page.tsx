@@ -9,15 +9,7 @@ interface Team {
   teamName: string;
   globalScore: number;
   interventions: number;
-  detailedScores: {
-    defi1: number;
-    defi2: number;
-    defi3: number;
-    defi4: number;
-    defi5: number;
-    defi6: number;
-    timer: number;
-  };
+  detailedScores: Record<string, number>;
   timerScore: number;
 }
 
