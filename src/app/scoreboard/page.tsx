@@ -55,24 +55,6 @@ export default async function ScoreboardPage() {
               </svg>
               <span>Back to Home</span>
             </Link>
-            <Link
-              href="/admin/users"
-              className="px-4 py-2 rounded-2xl bg-slate-900 text-white transition hover:bg-slate-800"
-            >
-              Manage Users
-            </Link>
-            <Link
-              href="/admin/config"
-              className="px-4 py-2 rounded-2xl bg-slate-700 text-white transition hover:bg-slate-800"
-            >
-              Configure Challenges
-            </Link>
-            <Link
-              href="/api/auth/logout"
-              className="px-4 py-2 rounded-2xl border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition"
-            >
-              Logout
-            </Link>
           </div>
           <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
             Competition Scoreboard
