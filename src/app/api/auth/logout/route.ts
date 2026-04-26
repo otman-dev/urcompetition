@@ -13,7 +13,7 @@ export async function GET(request: Request) {
       await Session.deleteOne({ token: sessionToken });
     }
 
-    const response = NextResponse.redirect(new URL('/login', request.url));
+    const response = NextResponse.redirect(new URL('/', request.url));
     response.cookies.set('session_token', '', {
       ...createAuthCookieOptions(),
       maxAge: 0,
@@ -22,7 +22,7 @@ export async function GET(request: Request) {
     return response;
   } catch (error) {
     console.error('Logout error:', error);
-    const response = NextResponse.redirect(new URL('/login', request.url));
+    const response = NextResponse.redirect(new URL('/', request.url));
     response.cookies.set('session_token', '', {
       ...createAuthCookieOptions(),
       maxAge: 0,

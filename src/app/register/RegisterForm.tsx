@@ -157,12 +157,6 @@ export default function RegisterForm({ initialTeams }: RegisterFormProps) {
             </div>
             <div className="flex gap-3 items-center">
               <Link
-                href="/api/auth/logout"
-                className="inline-flex items-center px-4 py-2 bg-red-50 text-red-600 rounded-lg border border-red-200 hover:bg-red-100 transition-all duration-200 shadow-sm"
-              >
-                Logout
-              </Link>
-              <Link
                 href="/"
                 className="inline-flex items-center px-4 py-2 bg-white text-gray-700 rounded-lg border border-gray-200 hover:bg-gray-50 transition-all duration-200 shadow-sm"
               >
