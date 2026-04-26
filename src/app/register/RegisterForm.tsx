@@ -31,10 +31,22 @@ export default function RegisterForm({ initialTeams }: RegisterFormProps) {
   const [editingTeam, setEditingTeam] = useState<Team | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [deleteTeamId, setDeleteTeamId] = useState<string | null>(null);
+  const [deleteTeamName, setDeleteTeamName] = useState('');
 
   const showSuccess = (message: string) => {
     setSuccessMessage(message);
     setTimeout(() => setSuccessMessage(''), 3000);
+  };
+
+  const confirmDelete = (teamId: string, teamName: string) => {
+    setDeleteTeamId(teamId);
+    setDeleteTeamName(teamName);
+  };
+
+  const cancelDelete = () => {
+    setDeleteTeamId(null);
+    setDeleteTeamName('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -114,7 +126,8 @@ export default function RegisterForm({ initialTeams }: RegisterFormProps) {
   };
 
   const handleDelete = async (teamId: string) => {
-    if (!confirm('Are you sure you want to delete this team?')) return;
+    setDeleteTeamId(null);
+    setDeleteTeamName('');
     setIsLoading(true);
 
     try {
@@ -271,6 +284,7 @@ export default function RegisterForm({ initialTeams }: RegisterFormProps) {
                   </Link>
                   <div className="flex gap-2">
                     <button
+                      type="button"
                       onClick={() => handleEdit(team)}
                       className="p-1 text-gray-600 hover:text-indigo-600 transition-colors"
                       title="Edit team"
@@ -278,7 +292,8 @@ export default function RegisterForm({ initialTeams }: RegisterFormProps) {
                       <FiEdit2 className="w-5 h-5" />
                     </button>
                     <button
-                      onClick={() => handleDelete(team._id)}
+                      type="button"
+                      onClick={() => confirmDelete(team._id, team.teamName)}
                       className="p-1 text-gray-600 hover:text-red-600 transition-colors"
                       title="Delete team"
                     >
@@ -299,6 +314,33 @@ export default function RegisterForm({ initialTeams }: RegisterFormProps) {
           )}
         </div>
       </div>
+
+      {deleteTeamId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-gray-200">
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">Confirm delete</h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete <strong>{deleteTeamName}</strong>?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={cancelDelete}
+                className="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDelete(deleteTeamId)}
+                className="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
