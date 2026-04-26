@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 
 interface UserItem {
   _id: string;
@@ -83,14 +84,53 @@ export default function AdminUsersPage() {
     }
   };
 
+  const deleteUser = async (userId: string) => {
+    if (!window.confirm('Delete this user permanently?')) {
+      return;
+    }
+
+    setActiveId(userId);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/auth/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || 'Unable to delete user');
+        return;
+      }
+
+      setUsers((current) => current.filter((user) => user._id !== userId));
+    } catch {
+      setError('Unable to delete user');
+    } finally {
+      setActiveId(null);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-slate-50 p-8">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8 rounded-3xl bg-white p-8 shadow-lg">
-          <h1 className="text-3xl font-bold text-slate-900 mb-4">User Management</h1>
-          <p className="text-slate-600 mb-6">
-            Approve or disapprove users and review their current access state.
-          </p>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-4">
+            <div>
+              <h1 className="text-3xl font-bold text-slate-900">User Management</h1>
+              <p className="text-slate-600 mt-2">
+                Approve or disapprove users and review their current access state.
+              </p>
+            </div>
+            <Link
+              href="/"
+              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"
+            >
+              Return Home
+            </Link>
+          </div>
           {loading ? (
             <div className="text-slate-500">Loading users...</div>
           ) : error ? (
@@ -127,22 +167,33 @@ export default function AdminUsersPage() {
                           <span className="inline-flex rounded-2xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-600">
                             Your account
                           </span>
-                        ) : user.approved ? (
-                          <button
-                            onClick={() => updateApproval(user._id, false)}
-                            disabled={activeId === user._id}
-                            className="inline-flex items-center rounded-2xl border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-60"
-                          >
-                            {activeId === user._id ? 'Processing...' : 'Disapprove'}
-                          </button>
                         ) : (
-                          <button
-                            onClick={() => updateApproval(user._id, true)}
-                            disabled={activeId === user._id}
-                            className="inline-flex items-center rounded-2xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-60"
-                          >
-                            {activeId === user._id ? 'Processing...' : 'Approve'}
-                          </button>
+                          <div className="flex flex-wrap justify-end gap-2">
+                            {user.approved ? (
+                              <button
+                                onClick={() => updateApproval(user._id, false)}
+                                disabled={activeId === user._id}
+                                className="inline-flex items-center rounded-2xl border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-60"
+                              >
+                                {activeId === user._id ? 'Processing...' : 'Disapprove'}
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => updateApproval(user._id, true)}
+                                disabled={activeId === user._id}
+                                className="inline-flex items-center rounded-2xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-60"
+                              >
+                                {activeId === user._id ? 'Processing...' : 'Approve'}
+                              </button>
+                            )}
+                            <button
+                              onClick={() => deleteUser(user._id)}
+                              disabled={activeId === user._id}
+                              className="inline-flex items-center rounded-2xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-60"
+                            >
+                              {activeId === user._id ? 'Processing...' : 'Delete'}
+                            </button>
+                          </div>
                         )}
                       </td>
                     </tr>
